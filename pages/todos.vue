@@ -1,23 +1,22 @@
 <template>
-  <main class="container">
+  <main class="container mb-4">
     <div class="card">
       <div class="card-body">
-        <div class="form mb-4">
+        <div class="card-top">
           <h1 class="h1">Task List</h1>
-           <transition name="vif">
-          <div v-if="isAddShow" class="alert alert-warning text-center" role="alert">タスクを追加しました!!</div>
-          <div v-if="isEditShow" class="alert alert-warning text-center" role="alert">タスクを編集しました!!</div>
-        </transition>
-        </div>
-        <div class="text-center">
           <button class="mb-3 btn btn-success" @click="onModel">タスクを作成</button>
         </div>
+        <transition name="vif">
+          <div v-if="isAddShow" class="alert alert-warning text-center" role="alert">タスクを追加しました。</div>
+          <div v-if="isEditShow" class="alert alert-warning text-center" role="alert">タスクを編集しました。</div>
+        </transition>
+        <div class="text-center"></div>
         <li class="my-3 py-3 shadow list-group-item" :class="{ done: todo.done }" v-for="todo in todos" :key="todo.id">
           <span v-if="todo.deadlineDate">
             <div class="row">
               <div class="col-1">
                 <div class="pretty p-svg p-curve">
-                  <input type="checkbox" @checked="todo.done" @change="toggle(todo)" :checked="todo.done"/>
+                  <input type="checkbox" @checked="todo.done" @change="toggle(todo)" :checked="todo.done" />
                   <div class="state p-success">
                     <TheIconCheck />
                     <label></label>
@@ -32,14 +31,14 @@
                   <span class="h6 deadline_date">締め切り日:{{todo.deadlineDate.toDate() | dateFilter}}</span>
                 </p>
               </div>
-              <div class="col-2 btn-inner">
-                <button class="btn btn-primary" @click="todoEdit(todo.id)">
-                  <TheIconEdit />
-                </button>
-                <button class="btn btn-danger" @click="remove(todo.id)">
-                  <TheIconDelete />
-                </button>
-              </div>
+            </div>
+            <div class="btn-inner">
+              <button class="btn btn-primary" @click="todoEdit(todo.id)">
+                <TheIconEdit />
+              </button>
+              <button class="btn btn-danger" @click="remove(todo.id)">
+                <TheIconDelete />
+              </button>
             </div>
           </span>
         </li>
@@ -251,9 +250,27 @@ export default {
 
 </script>
 <style lang="scss">
+@mixin sp {
+  @media screen and (max-width: 768px) {
+    @content;
+  }
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+}
 
-.form{
-  height:100px;
+.panel {
+  width: 600px;
+  height: 600px;
+  background: #fff;
+  padding: 20px;
+}
+
+.list-group-item.done {
+  background: $pretty--color-default;
+  animation-name: fade;
+  animation-duration: 1s;
 }
 
 .deadline_date {
@@ -274,7 +291,7 @@ input {
 }
 
 .btn-inner {
-  padding: 20px 0;
+  text-align: right;
 }
 
 .btn-danger,
@@ -325,23 +342,6 @@ input {
 .vif-enter,
 .vif-leave-to {
   opacity: 0;
-}
-
-.panel {
-  width: 600px;
-  height: 600px;
-  background: #fff;
-  padding: 20px;
-}
-
-.list-group-item.done {
-  background: $pretty--color-default;
-  animation-name: fade;
-  animation-duration: 1s;
-}
-
-.alert {
-  // font-size: 0.8rem;
 }
 
 @keyframes fade {
