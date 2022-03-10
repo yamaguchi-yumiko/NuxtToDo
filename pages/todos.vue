@@ -1,143 +1,145 @@
 <template>
   <main class="container mb-4">
-    <paginate
-      v-model="currentPage"
-      :page-count="getPageCount"
-      :page-range="3"
-      :margin-pages="2"
-      :prev-text="'<'"
-      :next-text="'>'"
-      :container-class="'pagination flex justify-center mb-6'"
-      :page-class="'c-pagination-item'"
-      :page-link-class="'c-pagination-item__link'"
-      :prev-class="'c-pagination-btn c-pagination-prev'"
-      :prev-link-class="'c-pagination-btn__link'"
-      :next-class="'c-pagination-btn c-pagination-next'"
-      :next-link-class="'c-pagination-btn__link'"
-    ></paginate>
-    <div class="card">
-      <div class="card-body">
-        <div class="card-top mb-5">
-          <h1 class="h1">Task List</h1>
-          <button class="mb-3 btn btn-success" @click="onModel">タスクを作成</button>
-        </div>
-        <transition name="vif">
-          <div v-if="isAddShow" class="alert alert-primary text-center" role="alert">タスクを追加しました。</div>
-          <div v-if="isEditShow" class="alert alert-warning text-center" role="alert">タスクを編集しました。</div>
-          <div v-if="isDeleteShow" class="alert alert-success text-center" role="alert">タスクを削除しました。</div>
-        </transition>
-        <div class="text-center"></div>
-        <li class="my-3 py-3 shadow list-group-item" :class="{ done: todo.done }" v-for="todo in todos" :key="todo.id">
-          <span v-if="todo.deadlineDate">
-            <div class="row">
-              <div class="col-1">
-                <div class="pretty p-svg p-curve">
-                  <input type="checkbox" @checked="todo.done" @change="toggle(todo)" :checked="todo.done" />
-                  <div class="state p-success">
-                    <TheIconCheck />
-                    <label></label>
-                  </div>
-                </div>
-              </div>
-              <div class="col-9">
-                <span>
-                  <p class="h5">{{todo.task}}</p>
-                </span>
-                <p>
-                  <span class="h6 deadline_date">締め切り日:{{todo.deadlineDate.toDate() | dateFilter}}</span>
-                </p>
-              </div>
-            </div>
-            <div class="btn-inner">
-              <button class="btn btn-primary" @click="todoEdit(todo.id)">
-                <TheIconEdit />
-              </button>
-              <button class="btn btn-danger" @click="remove(todo.id)">
-                <TheIconDelete />
-              </button>
-            </div>
-          </span>
-        </li>
-        <div v-if="isSearch">
-          <li class="my-3 py-3 shadow list-group-item text-center">
-            <div class="search-error">
-              <p>キーワードに一致するタスクがありません。</p>
-              <v-icon>mdi-emoticon-cry-outline</v-icon>
-            </div>
-          </li>
-        </div>
-        <transition>
-          <div class="overlay" v-if="isModel">
-            <div class="panel">
-              <form @submit.prevent="edit(todoId)" v-if="isEdit">
-                <h2 class="h5">タスクを編集</h2>
-                <div class="group">
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconTask />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('task')">
-                    <p class="alert alert-danger">{{ errors.first('task') }}</p>
-                  </div>
-                  <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="todoListData.task" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconDetail />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('detail')">
-                    <p class="alert alert-danger">{{ errors.first('detail') }}</p>
-                  </div>
-                  <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="todoListData.detal" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconCalendar />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('deadline')">
-                    <p class="alert alert-danger">{{ errors.first('deadline') }}</p>
-                  </div>
-                  <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="todoListData.deadlineDate" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                </div>
-                <div class="mt-3 text-right">
-                  <button class="mt-2 ml-2 btn btn-success">編集</button>
-                  <button type="button" class="mt-2 btn btn-dark" @click="onClose">閉じる</button>
-                </div>
-              </form>
-              <form @submit.prevent="add" v-else>
-                <h2 class="h5">タスクを作成</h2>
-                <div class="group">
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconTask />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('task')">
-                    <p class="alert alert-danger">{{ errors.first('task') }}</p>
-                  </div>
-                  <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="task" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconDetail />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('detail')">
-                    <p class="alert alert-danger">{{ errors.first('detail') }}</p>
-                  </div>
-                  <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="detail" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                  <label for="l_text" class="mt-3 h6">
-                    <TheIconCalendar />
-                  </label>
-                  <div class="form-control-feedback" v-show="errors.has('deadline')">
-                    <p class="alert alert-danger">{{ errors.first('deadline') }}</p>
-                  </div>
-                  <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="deadlineDate" v-validate="'required'" />
-                  <div class="text_underline"></div>
-                </div>
-                <div class="mt-3 text-right">
-                  <button class="mt-2 ml-2 btn btn-success">追加</button>
-                  <button type="button" class="mt-2 btn btn-dark" @click="onClose">閉じる</button>
-                </div>
-              </form>
-            </div>
+    <div class="container-inner">
+      <paginate
+        v-model="currentPage"
+        :page-count="getPageCount"
+        :page-range="3"
+        :margin-pages="2"
+        :prev-text="'<'"
+        :next-text="'>'"
+        :container-class="'pagination flex justify-center mb-6'"
+        :page-class="'c-pagination-item'"
+        :page-link-class="'c-pagination-item__link'"
+        :prev-class="'c-pagination-btn c-pagination-prev'"
+        :prev-link-class="'c-pagination-btn__link'"
+        :next-class="'c-pagination-btn c-pagination-next'"
+        :next-link-class="'c-pagination-btn__link'"
+      ></paginate>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-top mb-5">
+            <h1 class="h1 font-roboto">Task List</h1>
+            <button class="mb-3 btn btn-success" @click="onModel">タスクを作成</button>
           </div>
-        </transition>
+          <transition name="vif">
+            <div v-if="isAddShow" class="alert alert-primary text-center" role="alert">タスクを追加しました。</div>
+            <div v-if="isEditShow" class="alert alert-warning text-center" role="alert">タスクを編集しました。</div>
+            <div v-if="isDeleteShow" class="alert alert-success text-center" role="alert">タスクを削除しました。</div>
+          </transition>
+          <div class="text-center"></div>
+          <li class="my-3 py-3 shadow list-group-item" :class="{ done: todo.done }" v-for="todo in todos" :key="todo.id">
+            <span v-if="todo.deadlineDate">
+              <div class="row">
+                <div class="col-1">
+                  <div class="pretty p-svg p-curve">
+                    <input type="checkbox" @checked="todo.done" @change="toggle(todo)" :checked="todo.done" />
+                    <div class="state p-success">
+                      <TheIconCheck />
+                      <label></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-9">
+                  <span>
+                    <p class="h5">{{todo.task}}</p>
+                  </span>
+                  <p>
+                    <span class="h6 deadline_date">締め切り日:{{todo.deadlineDate.toDate() | dateFilter}}</span>
+                  </p>
+                </div>
+              </div>
+              <div class="btn-inner">
+                <button class="btn btn-primary" @click="todoEdit(todo.id)">
+                  <TheIconEdit />
+                </button>
+                <button class="btn btn-danger" @click="remove(todo.id)">
+                  <TheIconDelete />
+                </button>
+              </div>
+            </span>
+          </li>
+          <div v-if="isSearch">
+            <li class="my-3 py-3 shadow list-group-item text-center">
+              <div class="search-error">
+                <p>キーワードに一致するタスクがありません。</p>
+                <v-icon>mdi-emoticon-cry-outline</v-icon>
+              </div>
+            </li>
+          </div>
+          <transition>
+            <div class="overlay" v-if="isModel">
+              <div class="panel">
+                <form @submit.prevent="edit(todoId)" v-if="isEdit">
+                  <h2 class="h5">タスクを編集</h2>
+                  <div class="group">
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconTask />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('task')">
+                      <p class="alert alert-danger">{{ errors.first('task') }}</p>
+                    </div>
+                    <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="todoListData.task" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconDetail />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('detail')">
+                      <p class="alert alert-danger">{{ errors.first('detail') }}</p>
+                    </div>
+                    <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="todoListData.detal" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconCalendar />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('deadline')">
+                      <p class="alert alert-danger">{{ errors.first('deadline') }}</p>
+                    </div>
+                    <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="todoListData.deadlineDate" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                  </div>
+                  <div class="mt-3 text-right">
+                    <button class="mt-2 ml-2 btn btn-success">編集</button>
+                    <button type="button" class="mt-2 btn btn-dark" @click="onClose">閉じる</button>
+                  </div>
+                </form>
+                <form @submit.prevent="add" v-else>
+                  <h2 class="h5">タスクを作成</h2>
+                  <div class="group">
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconTask />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('task')">
+                      <p class="alert alert-danger">{{ errors.first('task') }}</p>
+                    </div>
+                    <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="task" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconDetail />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('detail')">
+                      <p class="alert alert-danger">{{ errors.first('detail') }}</p>
+                    </div>
+                    <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="detail" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                    <label for="l_text" class="mt-3 h6">
+                      <TheIconCalendar />
+                    </label>
+                    <div class="form-control-feedback" v-show="errors.has('deadline')">
+                      <p class="alert alert-danger">{{ errors.first('deadline') }}</p>
+                    </div>
+                    <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="deadlineDate" v-validate="'required'" />
+                    <div class="text_underline"></div>
+                  </div>
+                  <div class="mt-3 text-right">
+                    <button class="mt-2 ml-2 btn btn-success">追加</button>
+                    <button type="button" class="mt-2 btn btn-dark" @click="onClose">閉じる</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </transition>
+        </div>
       </div>
     </div>
   </main>
@@ -306,6 +308,17 @@ export default {
 @mixin sp {
   @media screen and (max-width: 768px) {
     @content;
+  }
+}
+
+.h1 {
+  color: #385184;
+}
+
+.container-inner {
+  padding-top: 100px;
+   @include sp {
+     padding-top: 150px;
   }
 }
 

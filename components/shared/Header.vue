@@ -1,14 +1,14 @@
 <template>
-  <header class="gl-header mb-4">
+  <header class="gl-header mb-4 header-content">
     <b-navbar toggleable="lg" type="dark" variant="info">
-      <div class="container header">
-        <b-navbar-brand href="/">To Do List</b-navbar-brand>
-        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-        <b-collapse id="nav-collapse" is-nav>
+      <div class="container header-inner">
+        <b-navbar-brand href="/" class="font-roboto">To Do List</b-navbar-brand>
+        <b-navbar-toggle target="nav-collapse" v-if="this.$route.path != '/'"></b-navbar-toggle>
+        <b-collapse id="nav-collapse" is-nav v-if="this.$route.path != '/'">
           <b-navbar-nav class="ml-auto">
             <b-nav-item>
               <TheIconTaskLink />
-              <NuxtLink to="/todos" class="task-link">Task Page</NuxtLink>
+              <NuxtLink to="/todos" class="task-link font-roboto">Task Page</NuxtLink>
             </b-nav-item>
           </b-navbar-nav>
         </b-collapse>
@@ -31,17 +31,32 @@ export default {
 </script>
 
 <style lang="scss">
+@import url("https://fonts.googleapis.com/css2?family=Cabin&family=Roboto+Serif:ital,wght@1,300&family=Roboto+Slab&display=swap");
+
 @mixin sp {
   @media screen and (max-width: 768px) {
     @content;
   }
 }
 
- .container {
-    max-width: 900px !important;
-  }
+.font-roboto {
+  font-family: "Cabin", sans-serif;
+}
 
-.header {
+.container {
+  max-width: 900px !important;
+}
+
+.header-content {
+  position: fixed;
+  top: 2;
+  left: 0;
+  width: 100%;
+  z-index: 80;
+  box-shadow: 0 3px 6px rgb(0 0 0 / 16%);
+}
+
+.header-inner {
   max-width: 1400px;
 }
 
