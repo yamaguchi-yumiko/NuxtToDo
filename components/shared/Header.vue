@@ -36,6 +36,11 @@ export default {
     @content;
   }
 }
+
+ .container {
+    max-width: 900px !important;
+  }
+
 .header {
   max-width: 1400px;
 }
