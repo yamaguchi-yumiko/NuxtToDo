@@ -6,48 +6,71 @@ module.exports = {
   mode: 'spa',
 
   /*
-  ** Headers of the page
-  */
+   ** Headers of the page
+   */
   head: {
     title: pkg.name,
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: pkg.description }
+    meta: [{
+        charset: 'utf-8'
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1'
+      },
+      {
+        hid: 'description',
+        name: 'description',
+        content: pkg.description
+      }
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-    ]
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico'
+    }, ]
   },
 
   /*
-  ** Customize the progress-bar color
-  */
-  loading: { color: '#fff' },
+   ** Customize the progress-bar color
+   */
+  loading: {
+    color: '#fff'
+  },
 
   /*
-  ** Global CSS
-  */
+   ** Global CSS
+   */
 
-  css: [
-    { src: '~/assets/scss/app.scss' },
+  css: [{
+    src: '~/assets/scss/app.scss'
+  }, ],
+
+  /*
+   ** Plugins to load before mounting the App
+   */
+  plugins: [{
+      src: '~/plugins/vuejs-datepicker',
+      mode: 'client',
+      ssr: false
+    },
+    {
+      src: '~/plugins/vee-validate',
+      ssr: true
+    },
+    {
+      src: '~/plugins/vuejs-paginate',
+      ssr: false
+    },
   ],
 
   /*
-  ** Plugins to load before mounting the App
-  */
-  plugins: [
-    { src: '~/plugins/vuejs-datepicker', mode: 'client', ssr: false },
-    { src: '~/plugins/vee-validate', ssr: true }
-  ],
-
-  /*
-  ** Nuxt.js modules
-  */
+   ** Nuxt.js modules
+   */
   modules: [
     'bootstrap-vue/nuxt',
     '@nuxtjs/style-resources',
     '@nuxtjs/vuetify',
+
   ],
   styleResources: {
     scss: ['~/assets/scss/_variable.scss'],
@@ -55,12 +78,12 @@ module.exports = {
 
 
   /*
-  ** Build configuration
-  */
+   ** Build configuration
+   */
   build: {
     /*
-    ** You can extend webpack config here
-    */
+     ** You can extend webpack config here
+     */
     extend(config, ctx) {
 
     },
@@ -71,6 +94,6 @@ module.exports = {
       new webpack.ProvidePlugin({
         '_': 'lodash'
       })
-   ]
+    ]
   }
 }

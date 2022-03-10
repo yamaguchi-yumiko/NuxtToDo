@@ -1,8 +1,23 @@
 <template>
   <main class="container mb-4">
+    <paginate
+      v-model="currentPage"
+      :page-count="getPageCount"
+      :page-range="3"
+      :margin-pages="2"
+      :prev-text="'<'"
+      :next-text="'>'"
+      :container-class="'pagination flex justify-center mb-6'"
+      :page-class="'c-pagination-item'"
+      :page-link-class="'c-pagination-item__link'"
+      :prev-class="'c-pagination-btn c-pagination-prev'"
+      :prev-link-class="'c-pagination-btn__link'"
+      :next-class="'c-pagination-btn c-pagination-next'"
+      :next-link-class="'c-pagination-btn__link'"
+    ></paginate>
     <div class="card">
       <div class="card-body">
-        <div class="card-top">
+        <div class="card-top mb-5">
           <h1 class="h1">Task List</h1>
           <button class="mb-3 btn btn-success" @click="onModel">タスクを作成</button>
         </div>
@@ -144,6 +159,7 @@ import TheIconDelete from '~/components/atom/iconDelete.vue'
 import TheIconDetail from '~/components/atom/iconDetail.vue'
 import TheIconCalendar from '~/components/atom/iconCalendar.vue'
 
+
 export default {
   layout: "default",
   components: {
@@ -160,6 +176,9 @@ export default {
     detail: "",
     deadlineDate: "",
     todoId: "",
+    items: "",
+    parPage: 5,
+    currentPage: 1,
     todoListData: {
       deadlineDate: "",
       detal: "",
@@ -191,10 +210,17 @@ export default {
           this.isSearch = false;
         }
       }
+      this.items = todos
+      let current = this.currentPage * this.parPage;
+      let start = current - this.parPage;
+      todos = this.items.slice(start, current);
       return todos;
     },
+    getPageCount() {
+      return Math.ceil(this.items.length / this.parPage);
+    }
   },
-  created: function () {
+  created() {
     this.$store.dispatch('todos/init');
   },
   methods: {
@@ -220,6 +246,7 @@ export default {
           this.task = '';
           this.detail = '';
           this.deadlineDate = '';
+          this.$validator.pause()
         }
       })
     },
@@ -280,6 +307,11 @@ export default {
   @media screen and (max-width: 768px) {
     @content;
   }
+}
+
+.page-item.active .page-link {
+  background-color: $pretty--color-success;
+  border-color: $pretty--color-success;
 }
 
 .card-top {
@@ -382,5 +414,25 @@ input {
   100% {
     opacity: 1;
   }
+}
+
+.c-pagination-btn__link,
+.c-pagination-item__link {
+  border: solid 1px #14a3b8;
+  border-radius: 4px;
+  text-align: center;
+  padding: 0.1rem 0.7rem;
+  margin: 0 0.25rem;
+  display: block;
+}
+.c-pagination-btn__link:hover,
+.c-pagination-item__link:hover {
+  background-color: #14a3b8;
+  color: #fff;
+}
+.active .c-pagination-item__link {
+  background-color: #14a3b8;
+  color: #fff;
+  pointer-events: none;
 }
 </style>
