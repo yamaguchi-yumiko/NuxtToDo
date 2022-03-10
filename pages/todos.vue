@@ -42,6 +42,14 @@
             </div>
           </span>
         </li>
+        <div v-if="isSearch">
+          <li class="my-3 py-3 shadow list-group-item text-center">
+            <div class="search-error">
+              <p>キーワードに一致するタスクがありません。</p>
+              <v-icon>mdi-emoticon-cry-outline</v-icon>
+            </div>
+          </li>
+        </div>
         <transition>
           <div class="overlay" v-if="isModel">
             <div class="panel">
@@ -54,7 +62,7 @@
                   <div class="form-control-feedback" v-show="errors.has('task')">
                     <p class="alert alert-danger">{{ errors.first('task') }}</p>
                   </div>
-                  <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="room.task" v-validate="'required'" />
+                  <input id="l_text" placeholder="タスクを入力してください" data-vv-as="タスク" type="text" :name="'task'" v-model="todoListData.task" v-validate="'required'" />
                   <div class="text_underline"></div>
                   <label for="l_text" class="mt-3 h6">
                     <TheIconDetail />
@@ -62,7 +70,7 @@
                   <div class="form-control-feedback" v-show="errors.has('detail')">
                     <p class="alert alert-danger">{{ errors.first('detail') }}</p>
                   </div>
-                  <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="room.detal" v-validate="'required'" />
+                  <input id="l_text" placeholder="詳細を入力してください" data-vv-as="詳細" type="text" :name="'detail'" v-model="todoListData.detal" v-validate="'required'" />
                   <div class="text_underline"></div>
                   <label for="l_text" class="mt-3 h6">
                     <TheIconCalendar />
@@ -70,7 +78,7 @@
                   <div class="form-control-feedback" v-show="errors.has('deadline')">
                     <p class="alert alert-danger">{{ errors.first('deadline') }}</p>
                   </div>
-                  <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="room.deadlineDate" v-validate="'required'" />
+                  <date-picker placeholder="期限を設定してください" format="yyyy/MM/dd" data-vv-as="期限" :name="'deadline'" :language="ja" v-model="todoListData.deadlineDate" v-validate="'required'" />
                   <div class="text_underline"></div>
                 </div>
                 <div class="mt-3 text-right">
@@ -146,29 +154,46 @@ export default {
     TheIconDetail,
     TheIconCalendar
   },
-  data: function () {
-    return {
-      task: "",
-      detail: "",
+  data: () => ({
+    task: "",
+    detail: "",
+    deadlineDate: "",
+    todoId: "",
+    todoListData: {
       deadlineDate: "",
-      todoId: "",
-      room: {
-        deadlineDate: "",
-        detal: "",
-        task: "",
-      },
-      ja: ja,
-      done: false,
-      isModel: false,
-      isEdit: false,
-      isAddShow: false,
-      isEditShow: false,
-    }
-  },
+      detal: "",
+      task: "",
+    },
+    ja: ja,
+    done: false,
+    isModel: false,
+    isEdit: false,
+    isAddShow: false,
+    isEditShow: false,
+    isSearch: false,
+  }),
   mounted() {
   },
+  computed: {
+    todos() {
+      let todo = this.$store.getters['todos/orderdTodos'];
+      let todos = [];
+      for (let i in todo) {
+        let todoItems = todo[i];
+        if (todoItems.task.indexOf(this.$store.state.search.searchMessage) !== -1) {
+          todos.push(todoItems);
+        }
+        if (todos.length == 0) {
+          this.isSearch = true;
+        } else {
+          this.isSearch = false;
+        }
+      }
+      return todos;
+    },
+  },
   created: function () {
-    this.$store.dispatch('todos/init')
+    this.$store.dispatch('todos/init');
   },
   methods: {
     onModel() {
@@ -211,13 +236,13 @@ export default {
             detal: getTodoData.detal,
             task: getTodoData.task,
           }
-          this.room = todoData;
+          this.todoListData = todoData;
         })
     },
     edit(id) {
       this.$validator.validateAll().then((result) => {
         if (result) {
-          this.$store.dispatch('todos/edit', { todoId: id, todoTask: this.room.task, todoDetal: this.room.detal, todoDeadlineDate: this.room.deadlineDate });
+          this.$store.dispatch('todos/edit', { todoId: id, todoTask: this.todoListData.task, todoDetal: this.todoListData.detal, todoDeadlineDate: this.todoListData.deadlineDate });
           this.isModel = false;
           this.isEditShow = true;
           setTimeout(() => {
@@ -236,11 +261,6 @@ export default {
       this.$store.dispatch('todos/toggle', todo);
     }
   },
-  computed: {
-    todos() {
-      return this.$store.getters['todos/orderdTodos'];
-    }
-  },
   filters: {
     dateFilter: function (date) {
       return moment(date).format('YYYY/MM/DD');
@@ -255,6 +275,7 @@ export default {
     @content;
   }
 }
+
 .card-top {
   display: flex;
   justify-content: space-between;
@@ -301,6 +322,10 @@ input {
 
 .btn {
   box-shadow: 0px 2px 3px 0px #9e9e9e;
+}
+
+.btn-dark {
+  color: #fff;
 }
 
 .overlay {
