@@ -47,6 +47,7 @@ module.exports = {
   modules: [
     'bootstrap-vue/nuxt',
     '@nuxtjs/style-resources',
+    '@nuxtjs/vuetify',
   ],
   styleResources: {
     scss: ['~/assets/scss/_variable.scss'],

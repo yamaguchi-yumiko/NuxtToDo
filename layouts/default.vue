@@ -5,12 +5,12 @@
   </div>
 </template>
 <script>
-import TheHeader from '~/components/Header.vue'
+import TheHeader from '~/components/shared/Header.vue'
 export default {
   name: "default",
   components: {
     TheHeader,
-  }
+  },
 }
 </script>
 <style>
