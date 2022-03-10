@@ -24,6 +24,7 @@
     "stylus-loader": "^4.3.3",
     "vee-validate": "^2.2.15",
     "vuejs-datepicker": "^1.6.2",
+    "vuejs-paginate": "^2.1.0",
     "vuexfire": "^3.0.1"
   },
   "devDependencies": {
