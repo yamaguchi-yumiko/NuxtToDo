@@ -7,8 +7,9 @@
           <button class="mb-3 btn btn-success" @click="onModel">タスクを作成</button>
         </div>
         <transition name="vif">
-          <div v-if="isAddShow" class="alert alert-warning text-center" role="alert">タスクを追加しました。</div>
+          <div v-if="isAddShow" class="alert alert-primary text-center" role="alert">タスクを追加しました。</div>
           <div v-if="isEditShow" class="alert alert-warning text-center" role="alert">タスクを編集しました。</div>
+          <div v-if="isDeleteShow" class="alert alert-success text-center" role="alert">タスクを削除しました。</div>
         </transition>
         <div class="text-center"></div>
         <li class="my-3 py-3 shadow list-group-item" :class="{ done: todo.done }" v-for="todo in todos" :key="todo.id">
@@ -171,6 +172,7 @@ export default {
     isAddShow: false,
     isEditShow: false,
     isSearch: false,
+    isDeleteShow: false,
   }),
   mounted() {
   },
@@ -256,6 +258,10 @@ export default {
     },
     remove(id) {
       this.$store.dispatch('todos/remove', id);
+      this.isDeleteShow = true;
+      setTimeout(() => {
+        this.isDeleteShow = false;
+      }, 1400);
     },
     toggle(todo) {
       this.$store.dispatch('todos/toggle', todo);
